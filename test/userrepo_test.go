@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomUser(t *testing.T) models.User {
+func CreateRandomUser(t *testing.T) models.User {
 
 	user := models.User{
 		FitstName: utils.RandomString(6),
@@ -24,14 +24,14 @@ func createRandomUser(t *testing.T) models.User {
 	return insertedUser
 }
 func TestInsertUser(t *testing.T) {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 	insertedUser, err := userRepo.InsertUser(user)
 	require.NoError(t, err)
 	require.Equal(t, insertedUser.Email, user.Email)
 }
 
 func TestFindUserByEmail(t *testing.T) {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 	fetechedUser, err := userRepo.FindUserByEmail(user.Email)
 	require.NoError(t, err)
 	require.Equal(t, fetechedUser.Email, user.Email)
@@ -40,7 +40,7 @@ func TestFindUserByEmail(t *testing.T) {
 }
 
 func TestUpdatetUser(t *testing.T) {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 	user.Password = ""
 	user.FitstName = "Funbi"
 
@@ -51,7 +51,7 @@ func TestUpdatetUser(t *testing.T) {
 }
 
 func TestDeleteByUserID(t *testing.T) {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 	err := userRepo.DeleteByUserID(fmt.Sprintf("%d", user.ID))
 	require.NoError(t, err)
 	fetechedUser, err := userRepo.FindUserByEmail(user.Email)

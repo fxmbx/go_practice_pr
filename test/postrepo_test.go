@@ -10,7 +10,7 @@ import (
 )
 
 func createRandomPost(t *testing.T) models.Post {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 	post := models.Post{
 		Title:       utils.RandomString(6),
 		Description: utils.RandomString(16),
@@ -25,7 +25,7 @@ func createRandomPost(t *testing.T) models.Post {
 }
 
 func TestInserPost(t *testing.T) {
-	user := createRandomUser(t)
+	user := CreateRandomUser(t)
 
 	post := models.Post{
 		Title:       utils.RandomString(6),

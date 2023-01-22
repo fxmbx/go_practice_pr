@@ -26,5 +26,6 @@ func CloseDatabaseConnection(db *gorm.DB) {
 	if err != nil {
 		log.Fatalf("failed to close connection:  %v", err)
 	}
+
 	sqldb.Close()
 }
