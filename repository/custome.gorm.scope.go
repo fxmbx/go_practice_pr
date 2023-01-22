@@ -23,3 +23,19 @@ func Paginate(model any, pagination *utils.Pagination, db *gorm.DB) func(db *gor
 		return db.Offset(int(pagination.GetOffset())).Limit(int(pagination.GetLimit())).Order(pagination.GetSort())
 	}
 }
+func PaginateIncludeDeleted(model any, pagination *utils.Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	var (
+		totalRows  int64
+		totalPages int32
+	)
+
+	db.Model(model).Unscoped().Count(&totalRows)
+	totalPages = int32(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+	pagination.TotalPages = totalPages
+	pagination.TotalRows = totalRows
+
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Unscoped().Offset(int(pagination.GetOffset())).Limit(int(pagination.GetLimit())).Order(pagination.GetSort())
+
+	}
+}

@@ -13,6 +13,7 @@ type PostRepository interface {
 	FindPostByPostID(postId string) (models.Post, error)
 	ListPost(pagination utils.Pagination) (*utils.Pagination, error)
 	DeletePost(postId string) error
+	ListPostIncludeDeleted(pagination utils.Pagination) (*utils.Pagination, error)
 }
 
 type postRepository struct {
@@ -53,16 +54,25 @@ func (postRepo *postRepository) FindPostByPostID(postId string) (models.Post, er
 }
 func (postRepo *postRepository) ListPost(pagination utils.Pagination) (*utils.Pagination, error) {
 	var posts []*models.Post
-	postRepo.db.Scopes(Paginate(posts, &pagination, postRepo.db)).Unscoped().Find(&posts)
+	postRepo.db.Scopes(Paginate(posts, &pagination, postRepo.db)).Find(&posts)
 	pagination.Data = posts
 	return &pagination, nil
 }
 func (postRepo *postRepository) DeletePost(postId string) error {
 	var post models.Post
-	res := postRepo.db.Preload("User").Where("title = ?", postId).Take(&post)
+	res := postRepo.db.Preload("User").Where("id = ?", postId).Take(&post)
 	if res.Error != nil {
 		return res.Error
 	}
 	postRepo.db.Delete(&post)
 	return nil
+}
+
+func (postRepo *postRepository) ListPostIncludeDeleted(pagination utils.Pagination) (*utils.Pagination, error) {
+	var posts []*models.Post
+
+	postRepo.db.Scopes(PaginateIncludeDeleted(posts, &pagination, postRepo.db)).Find(&posts)
+	pagination.Data = posts
+
+	return &pagination, nil
 }

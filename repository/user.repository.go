@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"math"
-
 	"github.com/fxmbx/go_practice_pr/models"
 	"github.com/fxmbx/go_practice_pr/utils"
 	"gorm.io/gorm"
@@ -81,18 +79,8 @@ func (userRepo *userRepository) ListAllUsersIncludeDeleted(pagination utils.Pagi
 
 	var (
 		users []*models.User
-
-		totalRow   int64
-		totalPages int32
 	)
-	userRepo.db.Model(users).Unscoped().Count(&totalRow)
-	totalPages = int32(math.Ceil(float64(totalRow) / float64(pagination.Limit)))
-	userRepo.db.Unscoped().Find(&users)
-
-	userRepo.db.Unscoped().Offset(int(pagination.GetOffset())).Limit(int(pagination.GetLimit())).Order(pagination.GetSort()).Find(&users)
-
-	pagination.TotalRows = totalRow
-	pagination.TotalPages = totalPages
+	userRepo.db.Scopes(PaginateIncludeDeleted(users, &pagination, userRepo.db)).Find(&users)
 	pagination.Data = users
 
 	return &pagination, nil
