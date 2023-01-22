@@ -9,8 +9,8 @@ import (
 type PostRepository interface {
 	InserPost(post models.Post) (models.Post, error)
 	UpdatePost(post models.Post) (models.Post, error)
-	FindByTitle(title string) (models.Post, error)
-	FindByPostID(postId string) (models.Post, error)
+	FindPostByTitle(title string) (models.Post, error)
+	FindPostByPostID(postId string) (models.Post, error)
 	ListPost(pagination utils.Pagination) (*utils.Pagination, error)
 	DeletePost(postId string) error
 }
@@ -35,7 +35,7 @@ func (postRepo *postRepository) UpdatePost(post models.Post) (models.Post, error
 	postRepo.db.Preload("User").Find(&post)
 	return post, nil
 }
-func (postRepo *postRepository) FindByTitle(title string) (models.Post, error) {
+func (postRepo *postRepository) FindPostByTitle(title string) (models.Post, error) {
 	var post models.Post
 	res := postRepo.db.Preload("User").Where("title = ?", title).Take(&post)
 	if res.Error != nil {
@@ -43,7 +43,7 @@ func (postRepo *postRepository) FindByTitle(title string) (models.Post, error) {
 	}
 	return post, nil
 }
-func (postRepo *postRepository) FindByPostID(postId string) (models.Post, error) {
+func (postRepo *postRepository) FindPostByPostID(postId string) (models.Post, error) {
 	var post models.Post
 	res := postRepo.db.Preload("User").Where("id = ?", postId).Take(&post)
 	if res.Error != nil {

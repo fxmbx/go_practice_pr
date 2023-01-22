@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"math"
+
 	"github.com/fxmbx/go_practice_pr/models"
 	"github.com/fxmbx/go_practice_pr/utils"
 	"gorm.io/gorm"
@@ -9,8 +11,8 @@ import (
 type UserRepository interface {
 	InsertUser(user models.User) (models.User, error)
 	UpdatetUser(user models.User) (models.User, error)
-	FindByEmail(email string) (models.User, error)
-	FindByUserID(userID string) (models.User, error)
+	FindUserByEmail(email string) (models.User, error)
+	FindUserByUserID(userID string) (models.User, error)
 	DeleteByUserID(userID string) error
 	ListAllUsers(pagination utils.Pagination) (*utils.Pagination, error)
 	ListAllUsersIncludeDeleted(pagination utils.Pagination) (*utils.Pagination, error)
@@ -43,7 +45,7 @@ func (userRepo *userRepository) UpdatetUser(user models.User) (models.User, erro
 	return user, nil
 }
 
-func (userRepo *userRepository) FindByEmail(email string) (models.User, error) {
+func (userRepo *userRepository) FindUserByEmail(email string) (models.User, error) {
 	var user models.User
 
 	res := userRepo.db.Where("email = ?", email).Take(&user)
@@ -53,7 +55,7 @@ func (userRepo *userRepository) FindByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
-func (userRepo *userRepository) FindByUserID(userID string) (models.User, error) {
+func (userRepo *userRepository) FindUserByUserID(userID string) (models.User, error) {
 	var user models.User
 
 	res := userRepo.db.Where("id = ?", userID).Take(&user)
@@ -74,9 +76,24 @@ func (userRepo *userRepository) ListAllUsers(pagination utils.Pagination) (*util
 	pagination.Data = users
 	return &pagination, nil
 }
+
 func (userRepo *userRepository) ListAllUsersIncludeDeleted(pagination utils.Pagination) (*utils.Pagination, error) {
-	var users []*models.User
-	userRepo.db.Scopes(Paginate(users, &pagination, userRepo.db)).Unscoped().Find(&users)
+
+	var (
+		users []*models.User
+
+		totalRow   int64
+		totalPages int32
+	)
+	userRepo.db.Model(users).Unscoped().Count(&totalRow)
+	totalPages = int32(math.Ceil(float64(totalRow) / float64(pagination.Limit)))
+	userRepo.db.Unscoped().Find(&users)
+
+	userRepo.db.Unscoped().Offset(int(pagination.GetOffset())).Limit(int(pagination.GetLimit())).Order(pagination.GetSort()).Find(&users)
+
+	pagination.TotalRows = totalRow
+	pagination.TotalPages = totalPages
 	pagination.Data = users
+
 	return &pagination, nil
 }

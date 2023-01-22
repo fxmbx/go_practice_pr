@@ -9,5 +9,5 @@ type User struct {
 	UserName  string         `gorm:"type:varchar(100);unique" json:"-"`
 	Email     string         `gorm:"type:varchar(100);unique;" json:"-"`
 	Password  string         `gorm:"type:varchar(100)" json:"-"`
-	Delered   gorm.DeletedAt `gorm:"deleted_at"`
+	Deleted   gorm.DeletedAt `gorm:"deleted_at"`
 }
