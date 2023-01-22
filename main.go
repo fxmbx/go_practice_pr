@@ -13,7 +13,7 @@ var (
 )
 
 func main() {
-	// defer dbconfig.CloseDatabaseConnection(db)
+	defer dbconfig.CloseDatabaseConnection(db)
 	server := gin.Default()
 	server.Run()
 }
